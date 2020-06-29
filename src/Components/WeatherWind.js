@@ -5,24 +5,23 @@ import ArrowIcon from '@material-ui/icons/ArrowUpward';
 
 const useStyle = makeStyles(WeatherStyles)
 
-const WeatherWind = ({weatherData, weatherDataLoaded}) => {
+const WeatherWind = ({wind, weatherLoaded}) => {
 
     const classes = useStyle()
 
     const weatherWind = () => {
-        return weatherDataLoaded? 
-            `${weatherData.wind_speed} mph` : ''
+        return weatherLoaded? 
+            `${Math.round(wind.windSpeed)} mph` : ''
             
     }
 
     const arrow = () => {
-        return weatherDataLoaded? 
-            <ArrowIcon style={{fontSize: '5rem', transform: `rotate(${weatherData.wind_deg}deg)`}}/> : <ArrowIcon style={{fontSize: '4rem'}}/>
+        return weatherLoaded? 
+            <ArrowIcon style={{fontSize: '3rem', transform: `rotate(${wind.wind_direction}deg)`}}/> : <ArrowIcon style={{fontSize: '4rem'}}/>
     }
 
     return(
-        <Grid item xs={6} className={classes.root}>
-            <Paper className={classes.paper}>
+            <Paper className={classes.paperLocationV2}>
                 <Grid container>
                     <Grid item xs={12}>
                         {arrow()}
@@ -32,7 +31,6 @@ const WeatherWind = ({weatherData, weatherDataLoaded}) => {
                     </Grid>
                 </Grid>
             </Paper>
-        </Grid>
     )
 };
 

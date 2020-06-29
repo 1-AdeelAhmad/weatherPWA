@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { setSearchField } from '../actions';
 import Search from '../Components/Search';
 import { Styles } from './Styles';
-import { Grid, Paper, withStyles } from '@material-ui/core';
+import { Grid, Paper, withStyles, Container } from '@material-ui/core';
 import Toggle from '../Components/Toggle';
 import WeatherIcon from '../Components/WeatherIcon';
 import WeatherWind from '../Components/WeatherWind';
@@ -37,11 +37,15 @@ class App extends Component{
             currentLatPosition: '',
             currentLondPosition: '', 
             weatherData: '',
+            todayWeather: '',
+            tomorrowWeather: '',
+            dayAfterTomWeather: '',
             location: '',
         }
     }
 
     onHandleSelected = (e) => {
+        console.log(e.target)
         this.setState({currentSelected: e.target.id})
         this.calculateDate(e.target.id)
     }
@@ -58,7 +62,7 @@ class App extends Component{
 
     componentDidMount = async () => {
         await this.calculateDate(this.state.currentSelected)
-        await this.getLocation()
+        // await this.getLocation()
         // await this.getAllData(this.state.currentLatPosition, this.state.currentLondPosition)
     }
   
@@ -135,6 +139,12 @@ class App extends Component{
         const response = await fetch(url)
         const data = await response.json()
         console.log(data.daily[0])
+
+        this.setState({
+            todayWeather: data.daily[0],
+            tomorrowWeather: data.daily[1],
+            dayAfterTomWeather: data.daily[2],
+        })
         
         if(this.state.currentSelected === 'today' ) {
             this.setState({
@@ -152,6 +162,7 @@ class App extends Component{
                 weatherDataLoaded: true
             })
         }
+       
     }
 
     
@@ -184,8 +195,23 @@ class App extends Component{
             })
         }
 
-        if(this.state.currentLatPosition && this.state.currentLondPosition){
-            this.getWeatherGeo(this.state.currentLatPosition, this.state.currentLondPosition)
+        if(this.state.weatherDataLoaded){
+            if(this.state.currentSelected === 'today' ) {
+                this.setState({
+                    weatherData: this.state.todayWeather,
+                    weatherDataLoaded: true
+                })
+            } else if(this.state.currentSelected === 'tomorrow') {
+                this.setState({
+                    weatherData: this.state.tomorrowWeather,
+                    weatherDataLoaded: true
+                })
+            } if(this.state.currentSelected === 'dayAfterTomorrow') {
+                this.setState({
+                    weatherData: this.state.dayAfterTomWeather,
+                    weatherDataLoaded: true
+                })
+            }
         }
     }
 
@@ -195,28 +221,38 @@ class App extends Component{
         const { classes, onHandleSearchChange } = this.props;
         const { weatherData, weatherDataLoaded, setDate, currentSelected } = this.state;
 
+
         return(
-                <Grid container style={{margin: '0 auto', backgroundColor: '#ecf0f3'}}>
-                    <Grid item xs={12} className={classes.root}>
-                        <Paper elevation={0} className={classes.paper} style={{backgroundColor: '#ecf0f3'}}>
-                            <Grid container style={{height: '100%'}}>
-                                <Search 
-                                    searchWeather={this.searchWeather} 
-                                    onHandleSearchChange={onHandleSearchChange}
-                                    getLocation={this.getLocation}
-                                />
-                                <Toggle/>
-                                <Grid container spacing={5}>
+
+        <Container maxWidth='xs'>
+                <Grid container spacing={1} style={{backgroundColor: '#ecf0f3'}}>
+                    <Grid item xs={12} >
+                        <Paper elevation={0} style={{backgroundColor: '#ecf0f3'}}>
+                            <Grid container justify='center'>
+                                <Grid item xs={12}>
+                                    <Grid container spacing={2} justify='space-between'>
+                                        <Search 
+                                            searchWeather={this.searchWeather} 
+                                            onHandleSearchChange={onHandleSearchChange}
+                                            getLocation={this.getLocation}
+                                        />
+                                        
+                                        <Toggle/>
+                                    </Grid>
+                                </Grid>
+                                <Grid container spacing={10}>
                                     <WeatherIcon weatherData={weatherData} weatherDataLoaded={weatherDataLoaded}/>
                                     <WeatherWind weatherData={weatherData} weatherDataLoaded={weatherDataLoaded}/>
                                 </Grid>
-                                <LocationDetails 
-                                    setDate={setDate}
-                                    location={this.state.location}
-                                    weatherData={weatherData}
-                                    currentSelected={currentSelected}
-                                    weatherDataLoaded={weatherDataLoaded}
-                                />
+                                <Grid item xs={9}>
+                                    <LocationDetails 
+                                        setDate={setDate}
+                                        location={this.state.location}
+                                        weatherData={weatherData}
+                                        currentSelected={currentSelected}
+                                        weatherDataLoaded={weatherDataLoaded}
+                                    />
+                                </Grid>
                                 <Grid container spacing={3}>
                                     <WeatherToday onHandleSelected={this.onHandleSelected} currentSelected={this.state.currentSelected}/>
                                     <WeatherTom onHandleSelected={this.onHandleSelected} currentSelected={this.state.currentSelected} / >
@@ -226,8 +262,10 @@ class App extends Component{
                         </Paper>
                     </Grid>
                 </Grid>
+                </Container>
         )
     }
 }
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(Styles)(App));

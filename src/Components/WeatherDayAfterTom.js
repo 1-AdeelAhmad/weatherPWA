@@ -1,41 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Paper, makeStyles, Typography } from '@material-ui/core';
+import { Paper, makeStyles, Typography } from '@material-ui/core';
 import { WeatherStyles } from './WeatherStyles';
 
 const useStyles = makeStyles(WeatherStyles)
 
-const WeatherToday = ({currentSelected, onHandleSelected}) => {
+const WeatherToday = ({getDay, onRequestDate}) => {
 
     const  classes  = useStyles()
     const [select, setSelect] = useState(false);
 
     useEffect( () => {
-        if(currentSelected === 'dayAfterTomorrow') {
+        if(getDay === 'dat') {
             setSelect(true)
         } else {
             setSelect( false)
         }
-    },[currentSelected] )
+    },[getDay] )
 
     const calculateDay = () => {
+        
+        const date = new Date().getDate()+2;
         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        return days[new Date().getDay()+2]
+        return <Typography style={{fontSize: '.75rem'}} id='dat'>{days[new Date().getDay()]} <br/> {date}</Typography>
     }
 
     return(
-        <Grid item xs={4} className={classes.root} >
-            <Paper 
-                onClick={onHandleSelected} 
-                id='dayAfterTomorrow' 
-                className={ select ? classes.paperSelected : classes.paper}
-                    >
-                    <div style={{display: 'flex', flexDirection: 'column'}}>
-                        <Typography variant='button'>{calculateDay()}</Typography>
-                        <Typography variant='h6'>{new Date().getDate()+2}</Typography> 
-                    </div>
-                        
-            </Paper>        
-        </Grid>
+            <Paper onClick={() => onRequestDate('dat')} className={ select ? classes.paperSelected : classes.paper}>
+                {calculateDay()}
+            </Paper>
     )
 };
 
